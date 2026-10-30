@@ -65,6 +65,13 @@ For questions or suggestions, feel free to reach out:
 - Email: your.email@example.com
 - GitHub: [yourusername](https://github.com/yourusername)
 
+## Spring Boot Edition (Web Application)
+In addition to the Swing GUI, a complete **Spring Boot Web Application** is available in the [`spring/`](file:///Users/mohakjaiswal/m.m.m.m/Personal_finance_manager_java/spring) folder.
+- **RESTful APIs** for transactions, savings goals, and real-time financial metrics.
+- **Modern Responsive Dashboard** accessible at `http://localhost:8080`.
+- **H2 In-Memory/File Database** with H2 Console at `http://localhost:8080/h2-console`.
+- Run using `./mvnw spring-boot:run` inside the `spring/` directory.
+
 ---
 Thank you for using the Finance Management System!
 
