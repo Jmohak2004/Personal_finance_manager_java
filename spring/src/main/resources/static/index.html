@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Finance Manager | Spring Boot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+            <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Personal Finance Manager</h1>
+          <span class="brand-sub">Spring Boot Edition</span>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div class="user-chip">
+          <span class="user-avatar">A</span>
+          <span class="user-name">Admin User</span>
+        </div>
+        <a href="/h2-console" target="_blank" class="btn-console" title="Open H2 Database Console">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+          </svg>
+          H2 Console
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Dynamic Alert Banner (Exceeding 50% Income Warning) -->
+    <div id="expenseAlertBanner" class="alert-banner hidden">
+      <div class="alert-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="alert-content">
+        <strong class="alert-heading">Expense Alert!</strong>
+        <span id="alertMessageText">Warning: Your expenses have exceeded 50% of your income!</span>
+      </div>
+    </div>
+
+    <!-- Summary Metrics Grid -->
+    <section class="metrics-grid">
+      <!-- Total Income Card -->
+      <div class="metric-card income-card">
+        <div class="metric-header">
+          <span class="metric-label">Total Income</span>
+          <span class="metric-pill pill-income">Inflow</span>
+        </div>
+        <div class="metric-value text-income" id="lblTotalIncome">$0.00</div>
+        <div class="metric-footer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+          </svg>
+          <span>All recorded earnings</span>
+        </div>
+      </div>
+
+      <!-- Total Expenses Card -->
+      <div class="metric-card expense-card">
+        <div class="metric-header">
+          <span class="metric-label">Total Expenses</span>
+          <span class="metric-pill pill-expense" id="expenseRatioBadge">0% of inc</span>
+        </div>
+        <div class="metric-value text-expense" id="lblTotalExpense">$0.00</div>
+        <div class="metric-footer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+            <polyline points="17 18 23 18 23 12"/>
+          </svg>
+          <span>All outgoing spendings</span>
+        </div>
+      </div>
+
+      <!-- Net Savings Progress Card -->
+      <div class="metric-card progress-card">
+        <div class="metric-header">
+          <span class="metric-label">Savings Progress</span>
+          <span class="metric-pill pill-progress">Net Balance</span>
+        </div>
+        <div class="metric-value" id="lblSavingsProgress">$0.00</div>
+        <div class="metric-footer">
+          <span id="savingsProgressSub">Total Income - Total Expenses</span>
+        </div>
+      </div>
+
+      <!-- Savings Goal Card -->
+      <div class="metric-card goal-card">
+        <div class="metric-header">
+          <span class="metric-label">Savings Goal</span>
+          <span class="metric-pill pill-goal" id="goalPercentageBadge">0%</span>
+        </div>
+        <div class="metric-value text-goal" id="lblSavingsGoal">$0.00</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="goalProgressBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <div class="dashboard-body">
+      <!-- Left Column: Transactions List -->
+      <div class="column-main">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Transaction History</h2>
+              <p class="card-subtitle">Manage all your financial records and spendings</p>
+            </div>
+            <div class="table-actions">
+              <select id="filterCategory" class="filter-select">
+                <option value="ALL">All Categories</option>
+                <option value="Income">Income</option>
+                <option value="Food">Food</option>
+                <option value="Rent">Rent</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Entertainment">Entertainment</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th class="text-right">Amount</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="transactionsTableBody">
+                <tr>
+                  <td colspan="5" class="table-empty">Loading transactions...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Forms & Category Breakdown -->
+      <div class="column-side">
+        <!-- Add Transaction Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Add Transaction</h3>
+          </div>
+          <form id="transactionForm" class="form">
+            <div class="form-group">
+              <label for="txtAmount">Amount ($)</label>
+              <input type="number" id="txtAmount" step="0.01" min="0.01" placeholder="e.g. 150.00" required>
+            </div>
+
+            <div class="form-group">
+              <label for="txtDescription">Description</label>
+              <input type="text" id="txtDescription" placeholder="e.g. Grocery store, Freelance" required>
+            </div>
+
+            <div class="form-group">
+              <label for="comboCategory">Category</label>
+              <select id="comboCategory" required>
+                <option value="Income">Income</option>
+                <option value="Food">Food</option>
+                <option value="Rent">Rent</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Entertainment">Entertainment</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="txtDate">Date</label>
+              <input type="date" id="txtDate">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="btnAddTransaction">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+              </svg>
+              Add Transaction
+            </button>
+          </form>
+        </div>
+
+        <!-- Set Savings Goal Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Set Savings Goal</h3>
+          </div>
+          <form id="savingsGoalForm" class="form">
+            <div class="form-group">
+              <label for="txtSavingsGoal">Target Amount ($)</label>
+              <input type="number" id="txtSavingsGoal" step="0.01" min="0" placeholder="e.g. 2500.00" required>
+            </div>
+            <button type="submit" class="btn btn-outline btn-block" id="btnSetSavingsGoal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+              </svg>
+              Set Savings Goal
+            </button>
+          </form>
+        </div>
+
+        <!-- Expense Category Breakdown Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Expense Breakdown</h3>
+          </div>
+          <div id="categoryBreakdownList" class="category-breakdown-list">
+            <p class="text-muted">No expenses recorded yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
